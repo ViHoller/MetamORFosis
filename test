@@ -30,23 +30,24 @@ def read_fasta(f): # update description since fasta file will only contain one s
     except FileNotFoundError:
         raise ValueError(f"The file path {f} doen't exist.")
 
-def find_all_orfs(genome, threshold): # TO FINISH - add stops, include sequence, threshold, save as df
-    
-    stop_list = ['TCG']
+def find_all_orfs(genome, threshold):
+    stop_list = ['TAA', 'TAG', 'TGA']
     matches = re.finditer('ATG', genome)
-    list_orfs = []
+    all_orfs = pd.DataFrame(columns=['start_pos', 'stop_pos', 'sequence'])
     for start in matches:
-        position = start.start()
+        start_position = start.start()
+        position = start_position
         while True:
             if position+3 > len(genome):
                 break
             if genome[position:position+3] in stop_list:
-                current_stop = position
-                list_orfs.append((start.start(), current_stop))
+                seq = genome[start_position:position+3]
                 break
             else:
                 position += 3
-    print(list_orfs)
+        if len(seq) > threshold:
+            all_orfs.loc[len(all_orfs)] = {'start_pos':start_position, 'stop_pos':position, 'sequence':seq}
+    return(all_orfs)
 
 def merge_dfs(df1,df2): # marge dataframes and order them by position
     pass
