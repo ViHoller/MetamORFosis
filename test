@@ -1,1 +1,21 @@
+import pandas as pd
+import re
+import BioPython
 
+def read_fasta(file):
+  pass
+
+def find_ATG() # find ATGs into dataframe - ordered by occurence
+  matches = re.finditer('ATG', seq)
+  for match in matches:
+    
+
+
+def orf_prediction():
+  pass
+
+def main():
+  # 2 pandas df 
+
+
+# add later - validation - promoters and codon composition
