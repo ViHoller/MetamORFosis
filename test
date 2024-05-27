@@ -32,7 +32,7 @@ def read_fasta(f):
     except FileNotFoundError:
         raise ValueError(f"The file path {f} doen't exist.")
 
-def find_all_orfs(genome):
+def find_all_orfs(genome, threshold, df): # TO FINISH - add stops, include sequence, threshold, save as df
     
     stop_list = ['TCG']
     matches = re.finditer('ATG', genome)
@@ -50,9 +50,13 @@ def find_all_orfs(genome):
                 position += 3
     print(list_orfs)
     
+def orf_predictor():
+    pass
 
 
 def main():
+    
+
   # 2 pandas df 
 
 
