@@ -1,7 +1,7 @@
 import pandas as pd
 import re
-import BioPython
-
+from Biopython import Seq
+import argparse
 
 def read_fasta(f):
     """
@@ -32,7 +32,7 @@ def read_fasta(f):
     except FileNotFoundError:
         raise ValueError(f"The file path {f} doen't exist.")
 
-def find_all_orfs(genome, threshold, df): # TO FINISH - add stops, include sequence, threshold, save as df
+def find_all_orfs(genome, threshold): # TO FINISH - add stops, include sequence, threshold, save as df
     
     stop_list = ['TCG']
     matches = re.finditer('ATG', genome)
@@ -49,15 +49,41 @@ def find_all_orfs(genome, threshold, df): # TO FINISH - add stops, include seque
             else:
                 position += 3
     print(list_orfs)
-    
-def orf_predictor():
+
+def merge_dfs(df1,df2): # marge dataframes and order them by position
     pass
 
+def write_fasta(df, filename):
+    pass
 
-def main():
-    
+def main(args):
+    threshold = args.t
+    genome = read_fasta(args.input_filename)
+    rev_genome = Seq(genome).reverse_compliment()
+    genome_orfs = find_all_ord(genome, threshold)
+    rev_genome_orfs = find_all_ord(rev_genome, threshold)
+    all_orfs = merge_dfs(genome, ref_genome)
+    write_fasta(all_orfs, args.outfile)
 
-  # 2 pandas df 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+    prog="",
+    description="",
+    )
+    parser.add_arguemnt(
+    'input_filename',
+    help=""     
+    )
+    parser.add_arguemtn(
+    'outfile',
+    help=""
+    )
+    parser.add_argument(
+    '--t',
+    help="threshold of ORF size" # better description,
+    default=123 # ADD THE STANDARD THRESHOLD
+    )
+    main(parser.parse_argument())
 
-
+# maybe translation and BLAST
 # add later - validation - promoters and codon composition
