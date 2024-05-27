@@ -18,16 +18,14 @@ def read_fasta(f):
         fasta_out (dict): Dictionary with accessions as keys and sequences as 
         values.
     """
-    fasta_out = {}
+    fasta_out = ''
     try:
         with open(f, "r") as h_in:
             for seq in h_in:      
                 if seq.startswith(">"):
-                    key = seq.strip()
-                    value = next(h_in).strip()
-                    fasta_out[key] = value
-                else:
                     continue
+                else:
+                    fasta_out += seq
             return fasta_out
     except FileNotFoundError:
         raise ValueError(f"The file path {f} doen't exist.")
