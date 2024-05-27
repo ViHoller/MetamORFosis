@@ -2,17 +2,55 @@ import pandas as pd
 import re
 import BioPython
 
-def read_fasta(file):
-  pass
 
-def find_ATG() # find ATGs into dataframe - ordered by occurence
-  matches = re.finditer('ATG', seq)
-  for match in matches:
+def read_fasta(f):
+    """
+    It reads a fasta file and returns a dictionary with accessions as keys 
+    and sequences as values. 
+    It raises ValueErrors if file path does not exist.
+    this function is not needed in this iteration of the script but kept
+    in case it is needed again
+    
+    Args:
+        f (string): File path.
+        
+    Returns:
+        fasta_out (dict): Dictionary with accessions as keys and sequences as 
+        values.
+    """
+    fasta_out = {}
+    try:
+        with open(f, "r") as h_in:
+            for seq in h_in:      
+                if seq.startswith(">"):
+                    key = seq.strip()
+                    value = next(h_in).strip()
+                    fasta_out[key] = value
+                else:
+                    continue
+            return fasta_out
+    except FileNotFoundError:
+        raise ValueError(f"The file path {f} doen't exist.")
+
+def find_all_orfs(genome):
+    
+    stop_list = ['TCG']
+    matches = re.finditer('ATG', genome)
+    list_orfs = []
+    for start in matches:
+        position = start.start()
+        while True:
+            if position+3 > len(genome):
+                break
+            if genome[position:position+3] in stop_list:
+                current_stop = position
+                list_orfs.append((start.start(), current_stop))
+                break
+            else:
+                position += 3
+    print(list_orfs)
     
 
-
-def orf_prediction():
-  pass
 
 def main():
   # 2 pandas df 
