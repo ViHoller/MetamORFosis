@@ -3,7 +3,7 @@ import re
 from Biopython import Seq
 import argparse
 
-def read_fasta(f):
+def read_fasta(f): # update description since fasta file will only contain one sequence
     """
     It reads a fasta file and returns a dictionary with accessions as keys 
     and sequences as values. 
