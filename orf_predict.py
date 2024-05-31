@@ -1,6 +1,6 @@
 import pandas as pd
 import re
-from Biopython import Seq
+from Bio.Seq import Seq
 import argparse
 
 def read_fasta(f): # update description since fasta file will only contain one sequence
@@ -52,6 +52,7 @@ def find_all_orfs(genome, threshold):
 def merge_dfs(df1,df2): # marge dataframes and order them by position
     merged_df = pd.concat([df1,df2], axis=0)
     sorted_orfs = merged_df.sort_values(by='start_pos')
+    #print(df1.shape, df2.shape, merged_df.shape, sorted_orfs.shape)
     return sorted_orfs
 
 def write_fasta(df, filename):
@@ -60,10 +61,10 @@ def write_fasta(df, filename):
 def main(args):
     threshold = args.t
     genome = read_fasta(args.input_filename)
-    rev_genome = Seq(genome).reverse_compliment()
-    genome_orfs = find_all_ord(genome, threshold)
-    rev_genome_orfs = find_all_ord(rev_genome, threshold)
-    all_orfs = merge_dfs(genome, ref_genome)
+    rev_genome = str(Seq(genome).reverse_complement())
+    genome_orfs = find_all_orfs(genome, threshold)
+    rev_genome_orfs = find_all_orfs(rev_genome, threshold)
+    all_orfs = merge_dfs(genome_orfs, rev_genome_orfs)
     write_fasta(all_orfs, args.outfile)
 
 if __name__ == '__main__':
@@ -71,20 +72,20 @@ if __name__ == '__main__':
     prog="",
     description="",
     )
-    parser.add_arguemnt(
+    parser.add_argument(
     'input_filename',
     help=""     
     )
-    parser.add_arguemtn(
+    parser.add_argument(
     'outfile',
     help=""
     )
     parser.add_argument(
     '--t',
-    help="threshold of ORF size" # better description,
+    help="threshold of ORF size", # better description
     default=123 # ADD THE STANDARD THRESHOLD
     )
-    main(parser.parse_argument())
+    main(parser.parse_args())
 
 # maybe translation and BLAST
 # add later - validation - promoters and codon composition
