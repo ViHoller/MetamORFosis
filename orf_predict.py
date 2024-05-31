@@ -50,7 +50,9 @@ def find_all_orfs(genome, threshold):
     return(all_orfs)
 
 def merge_dfs(df1,df2): # marge dataframes and order them by position
-    pass
+    merged_df = pd.concat([df1,df2], axis=0)
+    sorted_orfs = merged_df.sort_values(by='start_pos')
+    return sorted_orfs
 
 def write_fasta(df, filename):
     pass
