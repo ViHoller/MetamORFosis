@@ -34,7 +34,8 @@ def find_all_orfs(genome, threshold, rev=False):
     '''
     This function searches a sequence for all orfs as a stretch from a start codon to an in frame
     stop codon. This list is passed to remove_overlapping() to remove all overlapping orfs.
-    Naming the orfs: >orf_[number]_[start](_rev) 
+    Naming the orfs: (rev)_[number]|[start]|[length]
+    >filename| added later
 
     Arguments:
 
@@ -65,16 +66,14 @@ def find_all_orfs(genome, threshold, rev=False):
                 position += 3
 
         if len(seq) > threshold:
-            orf_id = f'>orf_{len(all_orfs)}_{start_position}'
+            orf_id = f'{len(all_orfs)}|start_pos:{start_position}|{len(seq)}_bp'
             if rev == True:
-                orf_id = orf_id + '_rev'
+                orf_id = 'rev_' + orf_id
             all_orfs.loc[len(all_orfs)] = {'orf_id':orf_id, 'start_pos':start_position, 'stop_pos':position, 'sequence':seq}
 
-    all_orfs = remove_overlapping(all_orfs, rev)
-
     return(all_orfs)
-
-def remove_overlapping(orf_df, rev):
+    
+def remove_overlapping(orf_df, rev=False):
     '''
     this function makes a list of all orfs whose start is inside one of the previous orfs,
     and deletes all rows in the list at the end. In case the orfs are not sorted by start position already,
@@ -116,16 +115,37 @@ def merge_dfs(df1,df2): # marge dataframes and order them by position
     #print(df1.shape, df2.shape, merged_df.shape, sorted_orfs.shape)
     return sorted_orfs
 
+def get_orfs(genome, threshold):
+    '''
+    This function is the executive function for getting the orfs. It gets orfs for both forward and reverse strand,
+    inverts coordinates for the reverse strand, removes overlapping orfs and concatenates the df into one containing
+    all orfs.
+    '''
+    genome_length = len(genome)
+    rev_genome = str(Seq(genome).reverse_complement())
+    
+    orfs = find_all_orfs(genome, threshold)
+    rev_orfs = find_all_orfs(rev_genome, threshold, rev=True)
+    
+    rev_orfs['start_pos'] = genome_length - rev_orfs['start_pos']
+    rev_orfs['stopo_pos'] = genome_length - rev_orfs['stop_pos']
+
+    orfs = remove_overlapping(orfs)
+    rev_orfs = remove_overlapping(rev_orfs, rev=True)
+    
+    all_orfs = merge_dfs(orfs, rev_orfs)
+    
+    return all_orfs
+    
+
+
 def write_fasta(df, filename):
     pass
 
 def main(args):
     threshold = args.t
     genome = read_fasta(args.input_filename)
-    rev_genome = str(Seq(genome).reverse_complement())
-    genome_orfs = find_all_orfs(genome, threshold)
-    rev_genome_orfs = find_all_orfs(rev_genome, threshold)
-    all_orfs = merge_dfs(genome_orfs, rev_genome_orfs)
+    all_orfs = get_orfs(genome, threshold)
     write_fasta(all_orfs, args.outfile)
 
 if __name__ == '__main__':
