@@ -139,8 +139,11 @@ def get_orfs(genome, threshold):
     
 
 
-def write_fasta(df, filename):
-    pass
+def write_fasta(df, in_filename, out_filename):
+    with open(out_filename, 'w') as out_f:
+        for index, row in df.iterrows():
+            out_f.write(f'>{in_filename}|{row['orf_id']}\n')
+            out_f.write(f'{row['sequence']}\n\n')
 
 def main(args):
     threshold = args.t
