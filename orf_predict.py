@@ -109,18 +109,10 @@ def remove_overlapping(orf_df, rev=False):
 
     return(orf_df)
 
-def merge_dfs(df1,df2):
-    '''
-    Merge orf dataframes into one and sort merged dataframe by orf starting position
-
-    Args:
-        df1 and df2 - orf dataframes from forward and reverse complement strands, order does not matter
-
-    Returns:
-        Merged and sorted dataframe with all identifed orfs
-    '''
+def merge_dfs(df1,df2): # marge dataframes and order them by position
     merged_df = pd.concat([df1,df2], axis=0)
     sorted_orfs = merged_df.sort_values(by='start_pos')
+    #print(df1.shape, df2.shape, merged_df.shape, sorted_orfs.shape)
     return sorted_orfs
 
 def get_orfs(genome, threshold):
@@ -148,41 +140,37 @@ def get_orfs(genome, threshold):
 
 
 def write_fasta(df, in_filename, out_filename):
-    '''
-    Write output fasta file in single-line fasta format
-
-    Arguments:
-        df - merged data and sorted dataframe of all orfs (from merge_dfs())
-        in_filename - name of input file for naming accessions
-        out_filename - name of file where orfs are written to
-    '''
     with open(out_filename, 'w') as out_f:
         for index, row in df.iterrows():
-            out_f.write(f'>{in_filename}|{row['orf_id']}\n')
-            out_f.write(f'{row['sequence']}\n\n')
+            orf_id = row['orf_id']
+            seq = row['sequence']
+            out_f.write(f'>{in_filename}|{orf_id}\n')
+            out_f.write(f'{seq}\n\n')
 
 def main(args):
     threshold = args.t
     genome = read_fasta(args.input_filename)
     all_orfs = get_orfs(genome, threshold)
+    print('ready')
     write_fasta(all_orfs, args.input_filename, args.outfile)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-    prog="ORFan",
-    description=""
+    prog="",
+    description="",
     )
     parser.add_argument(
     'input_filename',
-    help="Name of fasta file containing the genome"     
+    help=""     
     )
     parser.add_argument(
     'outfile',
-    help="Name of generate file containing all ORFs"
+    help=""
     )
     parser.add_argument(
     '--t',
-    help="threshold of minimal ORF size",
+    type=int,
+    help="threshold of ORF size", # better description
     default=123 # ADD THE STANDARD THRESHOLD
     )
     main(parser.parse_args())
