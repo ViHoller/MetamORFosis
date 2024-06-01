@@ -149,7 +149,7 @@ def main(args):
     threshold = args.t
     genome = read_fasta(args.input_filename)
     all_orfs = get_orfs(genome, threshold)
-    write_fasta(all_orfs, args.outfile)
+    write_fasta(all_orfs, args.input_filename, args.outfile)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
