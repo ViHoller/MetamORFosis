@@ -66,7 +66,7 @@ def find_all_orfs(genome, threshold, rev=False):
                 position += 3
 
         if len(seq) > threshold:
-            orf_id = f'{len(all_orfs)}|start_pos:{start_position}|{len(seq)}_bp'
+            orf_id = len(all_orfs)
             if rev == True:
                 orf_id = 'rev_' + orf_id
             all_orfs.loc[len(all_orfs)] = {'orf_id':orf_id, 'start_pos':start_position, 'stop_pos':position, 'sequence':seq}
@@ -106,7 +106,16 @@ def remove_overlapping(orf_df, rev=False):
 
     return(orf_df)
 
-def merge_dfs(df1,df2): # marge dataframes and order them by position
+def merge_dfs(df1,df2):
+    '''
+    Function to merge mad sortthe two ORF prediction dataframes.
+
+    Input:
+        df1, df2 - pandas df to be merged, order does not matter
+    Output:
+        returns a merged and sorted df
+    '''
+    
     merged_df = pd.concat([df1,df2], axis=0)
     sorted_orfs = merged_df.sort_values(by='start_pos')
     #print(df1.shape, df2.shape, merged_df.shape, sorted_orfs.shape)
@@ -138,40 +147,46 @@ def get_orfs(genome, threshold):
     
 
 def write_fasta(df, in_filename, out_filename):
+    '''
+    Function to write ordered predictions to ouput file
+    Inputs:
+        df - ordered dataframe from merge_dfs()
+        in_filename - name of input fasta file
+        out_filename - name of ouput file containing predictions
+    '''
     with open(out_filename, 'w') as out_f:
+        # iterate over rows in pd df
         for index, row in df.iterrows():
             orf_id = row['orf_id']
             seq = row['sequence']
-            out_f.write(f'>{in_filename}|{orf_id}\n')
+            seq_len = len(seq)
+            # format accession
+            out_f.write(f'>{in_filename}|{orf_id}|start_pos:{start_pos}|{seq_len}_bp\n')
             out_f.write(f'{seq}\n\n')
 
 def main(args):
-    threshold = args.t
     genome = read_fasta(args.input_filename)
-    all_orfs = get_orfs(genome, threshold)
+    all_orfs = get_orfs(genome, args.t)
     print('ready')
     write_fasta(all_orfs, args.input_filename, args.outfile)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-    prog="",
-    description="",
+    prog="MetamORFosis",
+    description="ORF prediction program",
     )
     parser.add_argument(
     'input_filename',
-    help=""     
+    help="Genome fasta input file"     
     )
     parser.add_argument(
     'outfile',
-    help=""
+    help="Name of output file containing predictions"
     )
     parser.add_argument(
     '--t',
     type=int,
-    help="threshold of ORF size", # better description
-    default=123 # ADD THE STANDARD THRESHOLD
+    help="threshold of ORF size", 
+    default=300 
     )
     main(parser.parse_args())
-
-# maybe translation and BLAST
-# add later - validation - promoters and codon composition
