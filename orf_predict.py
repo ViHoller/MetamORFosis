@@ -160,6 +160,7 @@ def write_fasta(df, in_filename, out_filename):
             orf_id = row['orf_id']
             seq = row['sequence']
             seq_len = len(seq)
+            start_pos = row['start_pos']
             # format accession
             out_f.write(f'>{in_filename}|{orf_id}|start_pos:{start_pos}|{seq_len}_bp\n')
             out_f.write(f'{seq}\n\n')
