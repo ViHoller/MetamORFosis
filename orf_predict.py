@@ -66,7 +66,7 @@ def find_all_orfs(genome, threshold, rev=False):
                 position += 3
 
         if len(seq) > threshold:
-            orf_id = len(all_orfs)
+            orf_id = str(len(all_orfs))
             if rev == True:
                 orf_id = 'rev_' + orf_id
             all_orfs.loc[len(all_orfs)] = {'orf_id':orf_id, 'start_pos':start_position, 'stop_pos':position, 'sequence':seq}
