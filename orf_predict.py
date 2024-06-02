@@ -95,14 +95,11 @@ def remove_overlapping(orf_df, rev=False):
 
         start = row['start_pos']
         
-        if start <= current_stop and not rev:
+        if start <= current_stop:
             drop_list.append(ind)
-        elif start > current_stop and not rev:
+        elif start > current_stop:
             current_stop = row['stop_pos']
-        elif start >= current_stop and rev:
-            drop_list.append(ind)
-        elif start < current_stop and rev:
-            current_stop = row['stop_pos']
+
 
     orf_df.drop(index=drop_list, inplace=True)
     orf_df.reset_index(drop=True, inplace=True)
@@ -113,6 +110,7 @@ def merge_dfs(df1,df2): # marge dataframes and order them by position
     merged_df = pd.concat([df1,df2], axis=0)
     sorted_orfs = merged_df.sort_values(by='start_pos')
     #print(df1.shape, df2.shape, merged_df.shape, sorted_orfs.shape)
+    print(sorted_orfs)
     return sorted_orfs
 
 def get_orfs(genome, threshold):
@@ -126,18 +124,18 @@ def get_orfs(genome, threshold):
     
     orfs = find_all_orfs(genome, threshold)
     rev_orfs = find_all_orfs(rev_genome, threshold, rev=True)
-    
-    rev_orfs['start_pos'] = genome_length - rev_orfs['start_pos']
-    rev_orfs['stopo_pos'] = genome_length - rev_orfs['stop_pos']
+
 
     orfs = remove_overlapping(orfs)
-    rev_orfs = remove_overlapping(rev_orfs, rev=True)
-    
+    rev_orfs = remove_overlapping(rev_orfs)
+
+    rev_orfs['start_pos'] = genome_length - rev_orfs['start_pos']
+    rev_orfs['stop_pos'] = genome_length - rev_orfs['stop_pos']
+
     all_orfs = merge_dfs(orfs, rev_orfs)
     
     return all_orfs
     
-
 
 def write_fasta(df, in_filename, out_filename):
     with open(out_filename, 'w') as out_f:
